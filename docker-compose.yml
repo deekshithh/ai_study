@@ -1,0 +1,34 @@
+version: '3.4'
+services:
+  db:
+    image: postgres
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_PASSWORD: password
+  web:
+    platform: linux/arm64
+    build:
+      context: .
+      dockerfile: dev.Dockerfile
+    command: /bin/sh -c "rm -f tmp/pids/server.pid && bundle exec rails s -p 3000 -b '0.0.0.0'"
+    volumes:
+      - ./ai_study:/web
+      - bundle:/bundle
+    ports:
+      - "3000:3000"
+    depends_on:
+      - db
+    env_file: .env
+    environment:
+      DATABASE_URL: postgres://postgres:password@db
+
+volumes:
+  db_data:
+    driver: local
+  bundle:
+    driver: local
+
+
+
+
